@@ -63,7 +63,8 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .ev a{color:var(--c);font-weight:700}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .tags .tag{margin:0}
-.pill{display:inline-block;font-size:13px;font-weight:700;padding:1px 10px;border-radius:999px;white-space:nowrap}
+.pill{display:inline-block;font-size:13px;font-weight:700;padding:1px 10px;border-radius:999px;white-space:nowrap;max-width:100%}
+.pill.fee{white-space:normal;border-radius:12px;line-height:1.5}
 .pill.age{background:light-dark(#e8f1fb,#1d3448);color:light-dark(#0b4f7c,#9fd0f5);border:1px solid light-dark(#b9d6f0,#2e5675)}
 .pill.svc{background:light-dark(#f4eefb,#2e2440);color:light-dark(#5b3a8c,#d4bdf5);border:1px solid light-dark(#dccbf1,#4a3a66)}
 .pill.fee{background:light-dark(#eaf6ec,#1d3a24);color:light-dark(#21692e,#9be0a8);border:1px solid light-dark(#bfe3c6,#2f5d39)}
@@ -104,7 +105,7 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 </svg>
 <div class="hero-in">
 <h1><span class="nb">台東活動，</span><span class="nb">從你家附近找起</span></h1>
-<p class="lead">選擇你住的區域，活動會依日期由近到遠排好。點路線圖上的鄉鎮，只看那個地方的活動。</p>
+<p class="lead">選擇你想要去的區域，活動會依日期由近到遠排好。點路線圖上的鄉鎮，就能看到該地區的活動。</p>
 </div>
 </header>
 <main>
@@ -146,6 +147,7 @@ function normDate(v){const m=String(v||'').trim().replace(/[年月\/.]/g,'-').re
 if(!m)return '';let y=+m[1];if(y<1911)y+=1911;return `${y}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`}
 function normTown(v){let t=String(v||'').trim().replace(/臺/g,'台');if(t==='台東'||t==='台東市')return '台東市';return t.replace(/[鄉鎮市]$/,'')}
 const BLOCK=/^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me|fb\.watch|reurl\.cc)(\/|$)/i;
+const isSignup=u=>/^https?:\/\/([a-z0-9-]+\.)*(forms\.gle|docs\.google\.com\/forms|forms\.google\.com|beclass\.com|accupass\.com|kktix\.cc|kktix\.com|eventbrite\.[a-z.]+|surveycake\.com|cakeresume\.com|tixcraft\.com|opentix\.life|ibon\.com\.tw|event\.culture\.tw|lu\.ma|luma\.com)(\/|$)/i.test(u)||/(signup|register|registration|報名)/i.test((()=>{try{return decodeURIComponent(u)}catch(e){return u}})());
 const isForm=u=>/^https:\/\/(forms\.gle\/|docs\.google\.com\/forms\/|forms\.google\.com\/)/i.test(u);
 function cleanLink(u){u=String(u||'').trim();if(!/^https?:\/\//i.test(u)||BLOCK.test(u))return '';
 return u.replace(/[?&](fbclid|igshid)=[^&#]*/gi,'').replace(/^([^?]*)&/,'$1?')}
@@ -157,7 +159,7 @@ if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
 o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
-o.link=cleanLink(o.link);o.web=cleanLink(o.web);out.push(o)});return out}
+o.link=cleanLink(o.link);o.web=cleanLink(o.web);if(o.link&&!isSignup(o.link)){if(!o.web)o.web=o.link;o.link=''}out.push(o)});return out}
 
 const R={
 city:{name:'市區',sub:'台東市',c:'--city',towns:['台東市']},
