@@ -57,6 +57,17 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 .tag.now{background:var(--c);color:#fff}
 .ev p{margin:6px 0 0;font-size:15px}
 .ev a{color:var(--c);font-weight:700}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.tags .tag{margin:0}
+.pill{display:inline-block;font-size:13px;font-weight:700;padding:1px 10px;border-radius:999px;white-space:nowrap}
+.pill.age{background:light-dark(#e8f1fb,#1d3448);color:light-dark(#0b4f7c,#9fd0f5);border:1px solid light-dark(#b9d6f0,#2e5675)}
+.pill.svc{background:light-dark(#f4eefb,#2e2440);color:light-dark(#5b3a8c,#d4bdf5);border:1px solid light-dark(#dccbf1,#4a3a66)}
+.pill.fee{background:light-dark(#eaf6ec,#1d3a24);color:light-dark(#21692e,#9be0a8);border:1px solid light-dark(#bfe3c6,#2f5d39)}
+.info{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:15px}
+.info li{display:grid;grid-template-columns:3em minmax(0,1fr);gap:8px}
+.info .k{color:var(--mute)}
+.go{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;padding:6px 16px;border-radius:12px;background:var(--c);color:#fff!important;text-decoration:none;font-weight:700}
+.go:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .ev.past{opacity:.55}
 .empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:16px;color:var(--mute)}
 .more{font:inherit;margin-top:16px;min-height:44px;padding:6px 16px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
@@ -80,6 +91,7 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 <div class="tabs" role="tablist" id="tabs"></div>
 <p class="lbl">鄉鎮</p><div class="towns" id="towns"></div>
 <p class="lbl">孩子年齡</p><div class="ages" id="ages"></div>
+<p class="lbl" id="svcLbl">服務項目</p><div class="ages" id="svcs"></div>
 <p class="sum" id="sum" aria-live="polite"></p>
 <div class="list" id="list"></div>
 <button class="more" id="pastBtn" type="button"></button>
@@ -89,11 +101,11 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 <script>
 {
 /* ===== 設定:把 Google 試算表「發布到網路」的 CSV 網址貼在下面引號中 ===== */
-const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQNXEy6A4KHeK1BygV4a-FU1kWA_OSb20UD0CUIxxrGdupravSUYbyM7toLJtSueCObQ3GLbWVpuMv9/pub?gid=2008958630&single=true&output=csv';
+const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT1JTMPXhAXtc9ADfs-4W54y73YW7Ndxog-9dBRy5NlwKKD2uwfIajQOLJRvP44PA/pub?gid=249654643&single=true&output=csv';
 
 let EVENTS=[],LOAD='loading';
 const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south'};
-const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link'};
+const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc'};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function parseCSV(t){const rows=[];let row=[],f='',q=false;
 for(let i=0;i<t.length;i++){const c=t[i];
@@ -115,7 +127,7 @@ o.town=normTown(o.town);let rg=RN[o.region];
 if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
-o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
+o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
 o.link=cleanLink(o.link);out.push(o)});return out}
 
 const R={
@@ -131,7 +143,7 @@ const pd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const t0=new Date();const today=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate());
 const md=d=>`${d.getMonth()+1}/${d.getDate()}`;
 
-let st={region:'city',town:null,age:0,past:false};
+let st={region:'city',town:null,age:0,svc:null,past:false};
 try{const h=location.hash.slice(1);if(R[h])st.region=h}catch(e){}
 
 /* ---- 路線圖 ---- */
@@ -161,7 +173,7 @@ if(r!==st.region){st.region=r;st.town=r==='city'?null:town}else{st.town=(town&&s
 render()});
 
 /* ---- 控制項 ---- */
-const tabs=document.getElementById('tabs'),towns=document.getElementById('towns'),ages=document.getElementById('ages');
+const tabs=document.getElementById('tabs'),towns=document.getElementById('towns'),ages=document.getElementById('ages'),svcs=document.getElementById('svcs');
 const upcoming=e=>pd(e.end||e.start)>=today;
 function drawControls(){
 tabs.innerHTML=Object.keys(R).map(k=>{const n=EVENTS.filter(e=>e.region===k&&upcoming(e)).length;
@@ -169,10 +181,15 @@ return `<button class="tab" role="tab" id="tab-${k}" data-r="${k}" style="--c:va
 const c=`var(${R[st.region].c})`;
 const tw=R[st.region].towns;
 towns.innerHTML=tw.length>1?[`<button class="chip" style="--c:${c}" data-t="" aria-pressed="${!st.town}">全部鄉鎮</button>`].concat(tw.map(t=>`<button class="chip" style="--c:${c}" data-t="${t}" aria-pressed="${st.town===t}">${t}</button>`)).join(''):`<span class="chip" style="--c:${c};cursor:default" aria-pressed="true">台東市</span>`;
-ages.innerHTML=AGES.map((a,i)=>`<button class="chip" style="--c:${c}" data-a="${i}" aria-pressed="${st.age===i}">${a[0]}</button>`).join('')}
+ages.innerHTML=AGES.map((a,i)=>`<button class="chip" style="--c:${c}" data-a="${i}" aria-pressed="${st.age===i}">${a[0]}</button>`).join('');
+const list=[...new Set(EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&e.svc&&(upcoming(e)||st.past)).map(e=>e.svc))];
+if(st.svc&&!list.includes(st.svc))st.svc=null;
+document.getElementById('svcLbl').style.display=svcs.style.display=list.length?'':'none';
+svcs.innerHTML=[`<button class="chip" style="--c:${c}" data-s="" aria-pressed="${!st.svc}">全部</button>`].concat(list.map(v=>`<button class="chip" style="--c:${c}" data-s="${esc(v)}" aria-pressed="${st.svc===v}">${esc(v)}</button>`)).join('')}
 tabs.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;st.region=b.dataset.r;st.town=null;render()});
 towns.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;st.town=b.dataset.t||null;render()});
 ages.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;st.age=+b.dataset.a;render()});
+svcs.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;st.svc=b.dataset.s||null;render()});
 document.getElementById('pastBtn').addEventListener('click',()=>{st.past=!st.past;render()});
 
 /* ---- 活動清單 ---- */
@@ -186,17 +203,19 @@ const [lbl,hot]=past?['已結束',false]:status(e);
 const dt=en?`${md(s)}<span style="display:block;font-size:.6em">至 ${md(en)}</span>`:md(s);
 const wd=en?'':`週${WD[s.getDay()]}`;
 const age=e.age[1]>=99&&e.age[0]===0?'不限年齡':e.age[1]>=99?`${e.age[0]} 歲以上`:`${e.age[0]}–${e.age[1]} 歲`;
+const row=(k,v)=>v?`<li><span class="k">${k}</span><span class="v">${v}</span></li>`:'';
 return `<article class="ev${past?' past':''}" style="--c:var(${R[e.region].c})">
 <div class="d"><b>${dt}</b><span>${wd}</span></div>
-<div><span class="tag${hot?' now':''}">${lbl}</span><h3>${esc(e.title)}</h3>
-<div class="meta">${e.time?`<span>時間 ${esc(e.time)}</span>`:''}<span>地點 ${esc(e.town)}${e.place?'・'+esc(e.place):''}</span><span>適合 ${age}</span><span>費用 ${esc(e.fee)}</span></div>
-<p>${[esc(e.signup),e.contact?'聯絡:'+esc(e.contact):''].filter(Boolean).join('・')}${e.link?` ・<a href="${esc(e.link)}" target="_blank" rel="noopener">${isForm(e.link)?'填寫報名表單':'前往報名'}</a>`:''}</p></div></article>`}
+<div><div class="tags"><span class="tag${hot?' now':''}">${lbl}</span><span class="pill age">適合 ${age}</span><span class="pill fee">${esc(e.fee)}</span>${e.svc?`<span class="pill svc">${esc(e.svc)}</span>`:''}</div>
+<h3>${esc(e.title)}</h3>
+<ul class="info">${row('時間',esc(e.time))}${row('地點',esc(e.town)+(e.place?'・'+esc(e.place):''))}${row('報名',esc(e.signup))}${row('聯絡',esc(e.contact))}</ul>
+${e.link?`<a class="go" href="${esc(e.link)}" target="_blank" rel="noopener">${isForm(e.link)?'填寫報名表單':'前往報名'}</a>`:''}</div></article>`}
 function render(){
 try{history.replaceState(null,'','#'+st.region)}catch(e){}
 document.documentElement.style.setProperty('--sel',`var(${R[st.region].c})`);
 drawMap();drawControls();
 const a=AGES[st.age][1];
-const pool=EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&(!a||(e.age[0]<a[1]&&(e.age[1]>a[0]||e.age[0]>=a[0]))));
+const pool=EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&(!st.svc||e.svc===st.svc)&&(!a||(e.age[0]<a[1]&&(e.age[1]>a[0]||e.age[0]>=a[0]))));
 const up=pool.filter(upcoming).sort((x,y)=>pd(x.start)-pd(y.start)||x.time.localeCompare(y.time));
 const past=pool.filter(e=>!upcoming(e)).sort((x,y)=>pd(y.start)-pd(x.start));
 const where=st.town||R[st.region].name;
