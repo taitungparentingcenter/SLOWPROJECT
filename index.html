@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>台東親子活動</title>
+<title>台東活動</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -17,14 +17,18 @@
 --bg:light-dark(#fffdf8,#10161c);--card:light-dark(#ffffff,#18212a);--ink:light-dark(#1d232a,#eef1f4);
 --mute:light-dark(#5d6670,#9aa6b2);--line:light-dark(#e6e1d6,#2a3540);
 --city:light-dark(#d2452f,#ff7a63);--coast:light-dark(#0b6aa6,#4fb0ec);--valley:light-dark(#2f8a3e,#6cc77a);--south:light-dark(#d9820f,#ffb347)}
+:root{--sky1:light-dark(#cfe8f6,#0c1a2c);--sky2:light-dark(#fff4dc,#18283c);--sun:light-dark(#ffb547,#f2c14e);--mtn1:light-dark(#a9cfb0,#22403a);--mtn2:light-dark(#649f72,#1a3829);--field:light-dark(#ecd879,#4b4420);--sea:light-dark(#2a7fbd,#1b4d78)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans TC",system-ui,sans-serif;overflow-x:clip}
-header{padding:clamp(24px,4vw,48px) max(5vw,16px) 8px;max-width:1240px;margin:auto}
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--sky1),var(--sky2));padding:clamp(28px,5vw,56px) max(5vw,16px) clamp(130px,20vw,240px)}
+.scene{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(160px,24vw,300px)}
+.nb{display:inline-block}
+.hero-in{position:relative;max-width:1240px;margin:auto}
 h1{font-size:clamp(32px,5vw,48px);line-height:1.1;margin:0 0 8px;font-weight:900;text-wrap:balance}
-.lead{margin:0;color:var(--mute);max-width:40em}
-main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,48px);align-items:start}
-.mapbox{position:sticky;top:16px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px}
+.lead{margin:0;color:var(--ink);opacity:.8;max-width:40em;font-size:17px}
+main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,48px);align-items:start}
+.mapbox{position:sticky;top:16px;background:radial-gradient(circle at 105% 60%,color-mix(in srgb,var(--coast) 16%,var(--card)) 0,var(--card) 48%);border:1px solid var(--line);border-radius:20px;padding:12px}
 .mapbox svg{width:100%;height:auto;display:block;max-height:78vh}
 .mapnote{font-size:13px;color:var(--mute);margin:4px 8px 4px}
 .rt{cursor:pointer;transition:opacity .25s}
@@ -44,10 +48,10 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 .chip{font:inherit;font-size:15px;min-height:44px;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .chip[aria-pressed=true]{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,var(--card));font-weight:700}
 .lbl{font-size:13px;color:var(--mute);margin:0 0 4px}
-.sum{margin:14px 0 10px;font-weight:700;font-size:18px}
+.sum{margin:14px 0 12px;font-weight:700;font-size:18px;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--sel,var(--city)) 13%,var(--card))}
 .list{display:grid;gap:12px}
 .ev{display:grid;grid-template-columns:84px minmax(0,1fr);gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
-.d{text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.d{text-align:center;align-self:start;padding:10px 4px;border-radius:12px;background:color-mix(in srgb,var(--c) 11%,var(--card))}
 .d b{display:block;font-size:26px;line-height:1.1;color:var(--c);white-space:nowrap}
 .d span{font-size:14px;color:var(--mute)}
 .ev h3{margin:0 0 4px;font-size:18px;line-height:1.35}
@@ -67,20 +71,41 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 .info li{display:grid;grid-template-columns:3em minmax(0,1fr);gap:8px}
 .info .k{color:var(--mute)}
 .go{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;padding:6px 16px;border-radius:12px;background:var(--c);color:#fff!important;text-decoration:none;font-weight:700}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.btns .go{margin-top:0}
+.go.web{background:transparent;color:var(--c)!important;border:2px solid var(--c)}
 .go:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .ev.past{opacity:.55}
 .empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:16px;color:var(--mute)}
 .more{font:inherit;margin-top:16px;min-height:44px;padding:6px 16px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-.sample{font-size:13px;color:var(--mute);margin-top:18px}
+.foot{position:relative;background:var(--sea);color:#fff;text-align:center;padding:12px 16px 36px;margin-top:32px}
+.foot .wave{position:absolute;left:0;top:-39px;width:100%;height:40px}
+.foot .note{margin:0;font-size:clamp(18px,2.4vw,22px);font-weight:700}
+.foot .small{margin:6px 0 0;font-size:15px;opacity:.9}
 @media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.mapbox{position:static}.mapbox svg{max-height:420px;margin:auto}}
 @media(max-width:600px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.rt{transition:none}}
 </style>
 </head>
 <body>
-<header>
-<h1>台東親子活動,從你家附近找起</h1>
-<p class="lead">選擇你住的區域,活動會依日期由近到遠排好。點路線圖上的鄉鎮,只看那個地方的活動。</p>
+<header class="hero">
+<svg class="scene" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+<circle cx="1010" cy="112" r="62" fill="var(--sun)" opacity=".22"/><circle cx="1010" cy="112" r="38" fill="var(--sun)"/>
+<path d="M0 205L80 132L150 170L245 104L335 158L430 112L540 172L620 136L705 182L810 240V300H0Z" fill="var(--mtn1)"/>
+<g transform="translate(560 118)"><path d="M0 -30C-20 -30 -28 -14 -26 -2C-24 10 -10 20 -6 30H6C10 20 24 10 26 -2C28 -14 20 -30 0 -30Z" fill="var(--city)"/><path d="M0 -30C-8 -18 -9 12 -4 30H4C9 12 8 -18 0 -30Z" fill="var(--south)"/><path d="M-6 30L-5 38M6 30L5 38" stroke="var(--ink)" stroke-width="1.2" opacity=".6"/><rect x="-6" y="38" width="12" height="9" rx="2" fill="#8a5a3c"/></g>
+<g transform="translate(670 96) scale(.62)"><path d="M0 -30C-20 -30 -28 -14 -26 -2C-24 10 -10 20 -6 30H6C10 20 24 10 26 -2C28 -14 20 -30 0 -30Z" fill="var(--south)"/><path d="M0 -30C-8 -18 -9 12 -4 30H4C9 12 8 -18 0 -30Z" fill="var(--valley)"/><rect x="-6" y="34" width="12" height="9" rx="2" fill="#8a5a3c"/></g>
+<path d="M0 238Q110 178 230 222T470 214T700 226L800 244V300H0Z" fill="var(--mtn2)"/>
+<path d="M0 262H790V300H0Z" fill="var(--field)"/>
+<path d="M0 272H790M0 282H790M0 292H790" stroke="var(--mtn2)" stroke-width="1.5" opacity=".35"/>
+<path d="M0 262H790" stroke="var(--ink)" stroke-width="2" opacity=".35"/>
+<g transform="translate(430 246)"><rect width="38" height="15" rx="4" fill="var(--city)"/><rect x="41" width="38" height="15" rx="4" fill="var(--city)"/><rect x="82" width="38" height="15" rx="4" fill="var(--city)"/><path d="M6 4h8v5H6zM22 4h8v5h-8zM47 4h8v5h-8zM63 4h8v5h-8zM88 4h8v5h-8zM104 4h8v5h-8z" fill="var(--sky2)"/></g>
+<path d="M745 236Q900 214 1200 218V300H720Z" fill="var(--sea)"/>
+<ellipse cx="1102" cy="219" rx="44" ry="8" fill="var(--mtn2)"/>
+<path d="M800 252q15-6 30 0t30 0M900 268q15-6 30 0t30 0M1010 248q15-6 30 0t30 0M1080 276q15-6 30 0t30 0M850 286q15-6 30 0t30 0" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>
+</svg>
+<div class="hero-in">
+<h1><span class="nb">台東活動，</span><span class="nb">從你家附近找起</span></h1>
+<p class="lead">選擇你住的區域，活動會依日期由近到遠排好。點路線圖上的鄉鎮，只看那個地方的活動。</p>
+</div>
 </header>
 <main>
 <section class="mapbox" aria-label="台東分區路線圖">
@@ -95,9 +120,13 @@ main{max-width:1240px;margin:auto;padding:16px max(5vw,16px) 56px;display:grid;g
 <p class="sum" id="sum" aria-live="polite"></p>
 <div class="list" id="list"></div>
 <button class="more" id="pastBtn" type="button"></button>
-<p class="sample">活動資訊以主辦單位公告為準。</p>
 </section>
 </main>
+<footer class="foot">
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 22Q75 2 150 22T300 22T450 22T600 22T750 22T900 22T1050 22T1200 22V40H0Z" fill="var(--sea)"/></svg>
+<p class="note">活動資訊以主辦單位公告為準。</p>
+<p class="small">出門前建議先打電話或看主辦單位公告，確認時間與報名狀況。</p>
+</footer>
 <script>
 {
 /* ===== 設定:把 Google 試算表「發布到網路」的 CSV 網址貼在下面引號中 ===== */
@@ -105,7 +134,7 @@ const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vT1JTMPXhAX
 
 let EVENTS=[],LOAD='loading';
 const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south'};
-const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc'};
+const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc','官網連結':'web'};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function parseCSV(t){const rows=[];let row=[],f='',q=false;
 for(let i=0;i<t.length;i++){const c=t[i];
@@ -128,7 +157,7 @@ if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
 o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
-o.link=cleanLink(o.link);out.push(o)});return out}
+o.link=cleanLink(o.link);o.web=cleanLink(o.web);out.push(o)});return out}
 
 const R={
 city:{name:'市區',sub:'台東市',c:'--city',towns:['台東市']},
@@ -209,7 +238,7 @@ return `<article class="ev${past?' past':''}" style="--c:var(${R[e.region].c})">
 <div><div class="tags"><span class="tag${hot?' now':''}">${lbl}</span><span class="pill age">適合 ${age}</span><span class="pill fee">${esc(e.fee)}</span></div>
 <h3>${esc(e.title)}</h3>
 <ul class="info">${row('項目',esc(e.svc))}${row('時間',esc(e.time))}${row('地點',esc(e.town)+(e.place?'・'+esc(e.place):''))}${row('報名',esc(e.signup))}${row('聯絡',esc(e.contact))}</ul>
-${e.link?`<a class="go" href="${esc(e.link)}" target="_blank" rel="noopener">${isForm(e.link)?'填寫報名表單':'前往報名'}</a>`:''}</div></article>`}
+${(e.link||e.web)?`<div class="btns">${e.link?`<a class="go" href="${esc(e.link)}" target="_blank" rel="noopener">前往報名</a>`:''}${e.web?`<a class="go web" href="${esc(e.web)}" target="_blank" rel="noopener">活動網站</a>`:''}</div>`:''}</div></article>`}
 function render(){
 try{history.replaceState(null,'','#'+st.region)}catch(e){}
 document.documentElement.style.setProperty('--sel',`var(${R[st.region].c})`);
