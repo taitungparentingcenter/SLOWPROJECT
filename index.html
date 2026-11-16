@@ -104,6 +104,10 @@ if(f||row.length){row.push(f);rows.push(row)}return rows}
 function normDate(v){const m=String(v||'').trim().replace(/[年月\/.]/g,'-').replace('日','').match(/^(\d{2,4})-(\d{1,2})-(\d{1,2})/);
 if(!m)return '';let y=+m[1];if(y<1911)y+=1911;return `${y}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`}
 function normTown(v){let t=String(v||'').trim().replace(/臺/g,'台');if(t==='台東'||t==='台東市')return '台東市';return t.replace(/[鄉鎮市]$/,'')}
+const BLOCK=/^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me|fb\.watch|reurl\.cc)(\/|$)/i;
+const isForm=u=>/^https:\/\/(forms\.gle\/|docs\.google\.com\/forms\/|forms\.google\.com\/)/i.test(u);
+function cleanLink(u){u=String(u||'').trim();if(!/^https?:\/\//i.test(u)||BLOCK.test(u))return '';
+return u.replace(/[?&](fbclid|igshid)=[^&#]*/gi,'').replace(/^([^?]*)&/,'$1?')}
 function toEvents(rows){const h=(rows.shift()||[]).map(x=>KEYS[x.trim()]);const out=[];
 rows.forEach(r=>{const o={};h.forEach((k,i)=>{if(k)o[k]=(r[i]||'').trim()});
 o.start=normDate(o.start);o.end=normDate(o.end);if(!o.title||!o.start)return;
@@ -112,7 +116,7 @@ if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
 o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
-o.link=/^https:\/\/(forms\.gle\/|docs\.google\.com\/forms\/|forms\.google\.com\/)/i.test(o.link||'')?o.link:'';out.push(o)});return out}
+o.link=cleanLink(o.link);out.push(o)});return out}
 
 const R={
 city:{name:'市區',sub:'台東市',c:'--city',towns:['台東市']},
@@ -186,7 +190,7 @@ return `<article class="ev${past?' past':''}" style="--c:var(${R[e.region].c})">
 <div class="d"><b>${dt}</b><span>${wd}</span></div>
 <div><span class="tag${hot?' now':''}">${lbl}</span><h3>${esc(e.title)}</h3>
 <div class="meta">${e.time?`<span>時間 ${esc(e.time)}</span>`:''}<span>地點 ${esc(e.town)}${e.place?'・'+esc(e.place):''}</span><span>適合 ${age}</span><span>費用 ${esc(e.fee)}</span></div>
-<p>${[esc(e.signup),e.contact?'聯絡:'+esc(e.contact):''].filter(Boolean).join('・')}${e.link?` ・<a href="${esc(e.link)}" target="_blank" rel="noopener">填寫報名表單</a>`:''}</p></div></article>`}
+<p>${[esc(e.signup),e.contact?'聯絡:'+esc(e.contact):''].filter(Boolean).join('・')}${e.link?` ・<a href="${esc(e.link)}" target="_blank" rel="noopener">${isForm(e.link)?'填寫報名表單':'前往報名'}</a>`:''}</p></div></article>`}
 function render(){
 try{history.replaceState(null,'','#'+st.region)}catch(e){}
 document.documentElement.style.setProperty('--sel',`var(${R[st.region].c})`);
