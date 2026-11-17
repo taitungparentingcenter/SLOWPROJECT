@@ -16,7 +16,7 @@
 :root{color-scheme:light dark;
 --bg:light-dark(#fffdf8,#10161c);--card:light-dark(#ffffff,#18212a);--ink:light-dark(#1d232a,#eef1f4);
 --mute:light-dark(#5d6670,#9aa6b2);--line:light-dark(#e6e1d6,#2a3540);
---city:light-dark(#d2452f,#ff7a63);--coast:light-dark(#0b6aa6,#4fb0ec);--valley:light-dark(#2f8a3e,#6cc77a);--south:light-dark(#d9820f,#ffb347)}
+--city:light-dark(#d2452f,#ff7a63);--coast:light-dark(#0b6aa6,#4fb0ec);--valley:light-dark(#2f8a3e,#6cc77a);--south:light-dark(#d9820f,#ffb347);--online:light-dark(#7a4bb8,#c49cf5)}
 :root{--sky1:light-dark(#cfe8f6,#0c1a2c);--sky2:light-dark(#fff4dc,#18283c);--sun:light-dark(#ffb547,#f2c14e);--mtn1:light-dark(#a9cfb0,#22403a);--mtn2:light-dark(#649f72,#1a3829);--field:light-dark(#ecd879,#4b4420);--sea:light-dark(#2a7fbd,#1b4d78)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -33,12 +33,16 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .mapnote{font-size:13px;color:var(--mute);margin:4px 8px 4px}
 .rt{cursor:pointer;transition:opacity .25s}
 .rt.off{opacity:.28}
-.rt path{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.rt:not(.cloud) path{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
 .rt .st{fill:var(--card);stroke-width:4}
 .rt .st.sel{stroke-width:7}
 .rt text{font-size:14px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--card);stroke-width:4px}
 .hub{cursor:pointer}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.cloud .bob{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.cloud .twk{animation:twk 1.8s ease-in-out infinite}
+@keyframes twk{50%{opacity:.25}}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .tab{font:inherit;font-weight:700;font-size:16px;min-height:52px;border-radius:14px;border:2px solid var(--c);background:var(--card);color:var(--ink);cursor:pointer;padding:6px 4px;line-height:1.2}
 .tab small{display:block;font-weight:500;font-size:13px;color:var(--mute)}
 .tab[aria-selected=true]{background:var(--c);color:#fff}
@@ -95,8 +99,8 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .foot .note{margin:0;font-size:clamp(18px,2.4vw,22px);font-weight:700}
 .foot .small{margin:6px 0 0;font-size:15px;opacity:.9}
 @media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.mapbox{position:static}.mapbox svg{max-height:420px;margin:auto}}
-@media(max-width:600px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
-@media(prefers-reduced-motion:reduce){.rt{transition:none}}
+@media(max-width:600px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.rt{transition:none}.cloud .bob,.cloud .twk{animation:none}}
 </style>
 </head>
 <body>
@@ -122,12 +126,12 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 </header>
 <main>
 <section class="mapbox" aria-label="台東分區路線圖">
-<svg id="map" viewBox="0 0 360 470" role="img" aria-label="台東四區路線圖"></svg>
-<p class="mapnote">點選路線或站名切換區域與鄉鎮；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
+<svg id="map" viewBox="0 0 360 470" role="img" aria-label="台東四區路線圖與線上活動雲朵"></svg>
+<p class="mapnote">點選路線或站名切換區域與鄉鎮，點左上角的雲朵看線上活動；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
 </section>
 <section>
 <div class="tabs" role="tablist" id="tabs"></div>
-<p class="lbl">鄉鎮</p><div class="towns" id="towns"></div>
+<p class="lbl" id="townLbl">鄉鎮</p><div class="towns" id="towns"></div>
 <p class="lbl">孩子年齡</p><div class="ages" id="ages"></div>
 <p class="lbl" id="svcLbl">服務項目</p><div class="ages" id="svcs"></div>
 <p class="sum" id="sum" aria-live="polite"></p>
@@ -156,7 +160,7 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/16BuXmZVFoRRqOdm0-q0Jo-yUXdLoMcRJhfPekoLqcoM/gviz/tq?tqx=out:csv&sheet=%E6%B4%BB%E5%8B%95';
 
 let EVENTS=[],LOAD='loading';
-const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south'};
+const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south','線上':'online'};
 const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc','官網連結':'web'};
 const fw=v=>String(v==null?'':v).replace(/,/g,'，').replace(/;/g,'；').replace(/\(/g,'（').replace(/\)/g,'）').replace(/\?/g,'？').replace(/!/g,'！').replace(/(\D|^):(?!\d)/g,'$1：').replace(/(\D):/g,'$1：');
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -177,7 +181,7 @@ return u.replace(/[?&](fbclid|igshid)=[^&#]*/gi,'').replace(/^([^?]*)&/,'$1?')}
 function toEvents(rows){const h=(rows.shift()||[]).map(x=>KEYS[x.trim()]);const out=[];
 rows.forEach(r=>{const o={};h.forEach((k,i)=>{if(k)o[k]=(r[i]||'').trim()});
 o.start=normDate(o.start);o.end=normDate(o.end);if(!o.title||!o.start)return;
-o.town=normTown(o.town);let rg=RN[o.region];
+o.town=normTown(o.town);if(/線上|網路|online/i.test(o.region+o.town))o.region='線上';let rg=RN[o.region];
 if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
@@ -188,7 +192,8 @@ const R={
 city:{name:'市區',sub:'台東市',c:'--city',towns:['台東市']},
 coast:{name:'海線',sub:'東河・成功・長濱',c:'--coast',towns:['東河','成功','長濱']},
 valley:{name:'縱谷線',sub:'卑南至池上',c:'--valley',towns:['卑南','鹿野','延平','關山','海端','池上']},
-south:{name:'南迴線',sub:'太麻里至達仁',c:'--south',towns:['太麻里','金峰','大武','達仁']}
+south:{name:'南迴線',sub:'太麻里至達仁',c:'--south',towns:['太麻里','金峰','大武','達仁']},
+online:{name:'線上',sub:'在家就能參加',c:'--online',towns:[]}
 };
 const AGES=[['全部',null],['0–3 歲',[0,3]],['3–6 歲',[3,6]],['6 歲以上',[6,99]]];
 const WD='日一二三四五六';
@@ -219,11 +224,22 @@ const all=L.pts.concat((L.spur||[]).map(s=>s[1]));
 all.forEach(p=>{g+=`<g data-town="${p[2]}"><circle cx="${p[0]}" cy="${p[1]}" r="18" fill="transparent" stroke="none"/><circle class="st${st.town===p[2]?' sel':''}" cx="${p[0]}" cy="${p[1]}" r="8" stroke="${c}"/>${lab(p[0],p[1],p[2],p[3])}</g>`});
 h+=`<g class="rt${st.region===k?'':' off'}" data-r="${k}">${g}</g>`}
 h+=`<g class="rt hub${st.region==='city'?'':' off'}" data-r="city"><g data-town="台東市"><circle cx="${hub[0]}" cy="${hub[1]}" r="20" fill="var(--city)"/><circle cx="${hub[0]}" cy="${hub[1]}" r="9" fill="var(--card)"/><text x="${hub[0]+28}" y="${hub[1]+6}" style="font-size:17px">台東市區</text></g></g>`;
+const oc='var(--online)',on=st.region==='online';
+h+=`<g class="rt cloud${on?'':' off'}" data-r="online"><rect x="18" y="14" width="110" height="92" fill="transparent"/><g class="bob">
+<g fill="${oc}" stroke="${oc}" stroke-width="3"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><g fill="color-mix(in srgb,${oc} 16%,var(--card))"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g>
+<rect x="36" y="52" width="72" height="18" rx="9" fill="color-mix(in srgb,${oc} 16%,var(--card))"/><path d="M38 70H106" stroke="${oc}" stroke-width="3" stroke-linecap="round"/>
+<rect x="59" y="40" width="26" height="17" rx="3" fill="${oc}"/><rect x="62" y="43" width="20" height="11" rx="2" fill="var(--card)"/>
+<circle cx="68" cy="47.5" r="1.6" fill="${oc}"/><circle cx="76" cy="47.5" r="1.6" fill="${oc}"/><path d="M69 50.5q3 2.6 6 0" fill="none" stroke="${oc}" stroke-width="1.4" stroke-linecap="round"/>
+<circle cx="64.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/><circle cx="79.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/>
+<path d="M55 57H89L86 61H58Z" fill="${oc}"/>
+<g fill="none" stroke="${oc}" stroke-width="2.4" stroke-linecap="round"><path d="M96 30a8 8 0 0 1 8 8"/><path d="M96 23a15 15 0 0 1 15 15"/></g>
+<path class="twk" d="M30 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="var(--sun)"/><path class="twk" style="animation-delay:.9s" d="M116 66l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="var(--sun)"/>
+</g><text x="72" y="92" text-anchor="middle" style="font-size:15px">線上講座</text></g>`;
 h+=`<text x="330" y="300" text-anchor="end" style="font-size:13px;fill:var(--mute);font-weight:500">太平洋</text>`;
 map.innerHTML=h}
 map.addEventListener('click',e=>{const g=e.target.closest('[data-r]');if(!g)return;const t=e.target.closest('[data-town]');
 const r=g.dataset.r;const town=t?t.dataset.town:null;
-if(r!==st.region){st.region=r;st.town=r==='city'?null:town}else{st.town=(town&&st.town!==town&&r!=='city')?town:null}
+if(r!==st.region){st.region=r;st.town=(r==='city'||r==='online')?null:town}else{st.town=(town&&st.town!==town&&r!=='city')?town:null}
 render()});
 
 /* ---- 控制項 ---- */
@@ -234,6 +250,7 @@ tabs.innerHTML=Object.keys(R).map(k=>{const n=EVENTS.filter(e=>e.region===k&&upc
 return `<button class="tab" role="tab" id="tab-${k}" data-r="${k}" style="--c:var(${R[k].c})" aria-selected="${st.region===k}">${R[k].name}<small>${n} 場活動</small></button>`}).join('');
 const c=`var(${R[st.region].c})`;
 const tw=R[st.region].towns;
+document.getElementById('townLbl').style.display=towns.style.display=tw.length?'':'none';
 towns.innerHTML=tw.length>1?[`<button class="chip" style="--c:${c}" data-t="" aria-pressed="${!st.town}">全部鄉鎮</button>`].concat(tw.map(t=>`<button class="chip" style="--c:${c}" data-t="${t}" aria-pressed="${st.town===t}">${t}</button>`)).join(''):`<span class="chip" style="--c:${c};cursor:default" aria-pressed="true">台東市</span>`;
 ages.innerHTML=AGES.map((a,i)=>`<button class="chip" style="--c:${c}" data-a="${i}" aria-pressed="${st.age===i}">${a[0]}</button>`).join('');
 const list=[...new Set(EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&e.svc&&(upcoming(e)||st.past)).map(e=>e.svc))];
@@ -262,7 +279,7 @@ return `<article class="ev${past?' past':''}" style="--c:var(${R[e.region].c})">
 <div class="d"><b>${dt}</b><span>${wd}</span></div>
 <div><div class="tags"><span class="tag${hot?' now':''}">${lbl}</span><span class="pill age">適合 ${age}</span><span class="pill fee">${esc(e.fee)}</span></div>
 <h3>${esc(e.title)}</h3>
-<ul class="info">${row('項目',esc(e.svc))}${row('時間',esc(e.time))}${row('地點',esc(e.town)+(e.place?'・'+esc(e.place):''))}${row('報名',esc(e.signup))}${row('聯絡',esc(e.contact))}</ul>
+<ul class="info">${row('項目',esc(e.svc))}${row('時間',esc(e.time))}${row('地點',e.region==='online'?esc(e.place||'線上'):esc(e.town)+(e.place?'・'+esc(e.place):''))}${row('報名',esc(e.signup))}${row('聯絡',esc(e.contact))}</ul>
 ${(e.link||e.web)?`<div class="btns">${e.link?`<a class="go" href="${esc(e.link)}" target="_blank" rel="noopener">前往報名</a>`:''}${e.web?`<a class="go web" href="${esc(e.web)}" target="_blank" rel="noopener">活動網站</a>`:''}</div>`:''}</div></article>`}
 function render(){
 try{history.replaceState(null,'','#'+st.region)}catch(e){}
