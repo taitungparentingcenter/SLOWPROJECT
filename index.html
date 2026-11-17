@@ -123,7 +123,7 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 <main>
 <section class="mapbox" aria-label="台東分區路線圖">
 <svg id="map" viewBox="0 0 360 470" role="img" aria-label="台東四區路線圖"></svg>
-<p class="mapnote">點選路線或站名切換區域與鄉鎮;再點一次同一站(或同一個鄉鎮按鈕)即可取消鄉鎮篩選。</p>
+<p class="mapnote">點選路線或站名切換區域與鄉鎮；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
 </section>
 <section>
 <div class="tabs" role="tablist" id="tabs"></div>
@@ -158,6 +158,7 @@ const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/16BuXmZVFoRRqOdm0-q0
 let EVENTS=[],LOAD='loading';
 const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south'};
 const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc','官網連結':'web'};
+const fw=v=>String(v==null?'':v).replace(/,/g,'，').replace(/;/g,'；').replace(/\(/g,'（').replace(/\)/g,'）').replace(/\?/g,'？').replace(/!/g,'！').replace(/(\D|^):(?!\d)/g,'$1：').replace(/(\D):/g,'$1：');
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function parseCSV(t){const rows=[];let row=[],f='',q=false;
 for(let i=0;i<t.length;i++){const c=t[i];
@@ -180,7 +181,7 @@ o.town=normTown(o.town);let rg=RN[o.region];
 if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg)return;
 o.region=rg;if(o.end&&o.end<o.start)o.end='';
 const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99:a1];
-o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
+['title','town','place','fee','signup','contact','svc','time'].forEach(k=>{if(o[k])o[k]=fw(o[k])});o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
 o.link=cleanLink(o.link);o.web=cleanLink(o.web);if(o.link&&!isSignup(o.link)){if(!o.web)o.web=o.link;o.link=''}out.push(o)});return out}
 
 const R={
@@ -272,14 +273,14 @@ const pool=EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&
 const up=pool.filter(upcoming).sort((x,y)=>pd(x.start)-pd(y.start)||x.time.localeCompare(y.time));
 const past=pool.filter(e=>!upcoming(e)).sort((x,y)=>pd(y.start)-pd(x.start));
 const where=st.town||R[st.region].name;
-const msg={loading:'活動載入中…',err:'活動資料暫時無法載入,請稍後重新整理',nourl:'尚未設定試算表網址'}[LOAD];
+const msg={loading:'活動載入中…',err:'活動資料暫時無法載入，請稍後重新整理',nourl:'尚未設定試算表網址'}[LOAD];
 document.getElementById('sum').textContent=msg?msg:up.length?`${where}接下來有 ${up.length} 場活動`:`${where}目前沒有即將舉辦的活動`;
-let h=LOAD!=='ok'?'':up.map(e=>card(e,false)).join('')||`<div class="empty">這裡暫時沒有活動,可以看看其他鄉鎮或換個年齡條件。</div>`;
+let h=LOAD!=='ok'?'':up.map(e=>card(e,false)).join('')||`<div class="empty">這裡暫時沒有活動，可以看看其他鄉鎮或換個年齡條件。</div>`;
 if(st.past&&past.length)h+=past.map(e=>card(e,true)).join('');
 document.getElementById('list').innerHTML=h;
 const pb=document.getElementById('pastBtn');
 pb.style.display=past.length?'':'none';
-pb.textContent=st.past?'隱藏已結束的活動':`顯示已結束的活動(${past.length})`}
+pb.textContent=st.past?'隱藏已結束的活動':`顯示已結束的活動（${past.length}）`}
 function load(){
 if(!/^https?:/.test(SHEET_CSV_URL)){LOAD='nourl';render();return}
 fetch(SHEET_CSV_URL+(SHEET_CSV_URL.includes('?')?'&':'?')+'_='+Date.now()).then(r=>{if(!r.ok)throw 0;return r.text()})
