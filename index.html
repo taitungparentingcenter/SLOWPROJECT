@@ -78,6 +78,18 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .ev.past{opacity:.55}
 .empty{padding:28px;text-align:center;border:2px dashed var(--line);border-radius:16px;color:var(--mute)}
 .more{font:inherit;margin-top:16px;min-height:44px;padding:6px 16px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.more-svc{padding:0 max(5vw,16px) 44px}
+.ms-in{max-width:1240px;margin:auto}
+.more-svc h2{font-size:24px;margin:0 0 12px;font-weight:900}
+.ms-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ms-l{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:2px solid var(--c);background:var(--card);color:var(--ink);text-decoration:none}
+.ms-l svg{width:44px;height:44px;flex:none}
+.ms-l span{flex:1;display:flex;flex-direction:column;gap:2px}
+.ms-l b{font-size:18px;line-height:1.3}.ms-l small{font-size:14px;color:var(--mute);line-height:1.45}
+.ms-l em{font-style:normal;font-weight:700;color:var(--c);white-space:nowrap}
+.ms-l.ln{background:var(--c);color:#fff}.ms-l.ln small,.ms-l.ln em{color:#fff}.ms-l.ln small{opacity:.92}
+.ms-l:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media(max-width:960px){.ms-grid{grid-template-columns:minmax(0,1fr)}}
 .foot{position:relative;background:var(--sea);color:#fff;text-align:center;padding:12px 16px 36px;margin-top:32px}
 .foot .wave{position:absolute;left:0;top:-39px;width:100%;height:40px}
 .foot .note{margin:0;font-size:clamp(18px,2.4vw,22px);font-weight:700}
@@ -123,6 +135,16 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 <button class="more" id="pastBtn" type="button"></button>
 </section>
 </main>
+<section class="more-svc" aria-labelledby="msT">
+<div class="ms-in">
+<h2 id="msT">更多陪伴資源</h2>
+<div class="ms-grid">
+<a class="ms-l" style="--c:var(--south)" href="https://taitungparentingcenter.github.io/play-grow/" target="_blank" rel="noopener"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="22" width="16" height="16" rx="3" fill="var(--c)"/><rect x="24" y="22" width="16" height="16" rx="3" fill="var(--coast)"/><rect x="15" y="6" width="16" height="16" rx="3" fill="var(--valley)"/></svg><span><b>一起玩玩看！</b><small>玩具示範影片、居家小遊戲、0–6 歲發展資訊</small></span><em>看看 ›</em></a>
+<a class="ms-l" style="--c:var(--valley)" href="https://taitungparentingcenter.github.io/SLOW/" target="_blank" rel="noopener"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40C14 30 20 26 24 26S34 30 40 40" fill="none" stroke="var(--c)" stroke-width="4" stroke-linecap="round"/><circle cx="17" cy="14" r="6" fill="var(--c)"/><circle cx="32" cy="18" r="4.5" fill="var(--south)"/></svg><span><b>陪孩子走這一段路</b><small>孩子哭鬧、生氣、想家時的親職小方法</small></span><em>看看 ›</em></a>
+<a class="ms-l ln" style="--c:#06c755" href="https://lin.ee/zpl0WwJ" target="_blank" rel="noopener"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 7C13 7 5 14 5 22.5c0 7.6 6.6 13.9 15.6 15.1.6.1 1.4.4 1.6 1 .2.5.1 1.3 0 1.8l-.3 1.6c-.1.5-.4 1.8 1.6 1 2-.8 10.8-6.4 14.8-10.9C41.1 29.4 43 26.1 43 22.5 43 14 34.5 7 24 7Z" fill="#fff"/></svg><span><b>加入官方 LINE</b><small>臺東縣居家賦能計畫，直接詢問、收最新消息</small></span><em>加入 ›</em></a>
+</div>
+</div>
+</section>
 <footer class="foot">
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 22Q75 2 150 22T300 22T450 22T600 22T750 22T900 22T1050 22T1200 22V40H0Z" fill="var(--sea)"/></svg>
 <p class="note">活動資訊以主辦單位公告為準。</p>
