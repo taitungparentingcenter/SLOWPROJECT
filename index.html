@@ -42,12 +42,19 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 @keyframes bob{50%{transform:translateY(-4px)}}
 .cloud .twk{animation:twk 1.8s ease-in-out infinite}
 @keyframes twk{50%{opacity:.25}}
-.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.tabs{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:8px;margin-bottom:14px}
 .tab{font:inherit;font-weight:700;font-size:16px;min-height:52px;border-radius:14px;border:2px solid var(--c);background:var(--card);color:var(--ink);cursor:pointer;padding:6px 4px;line-height:1.2}
 .tab small{display:block;font-weight:500;font-size:13px;color:var(--mute)}
 .tab[aria-selected=true]{background:var(--c);color:#fff}
 .tab[aria-selected=true] small{color:#fff;opacity:.9}
 .tab:focus-visible,.chip:focus-visible,button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px;padding:5px;border-radius:18px;background:color-mix(in srgb,var(--line) 55%,var(--card))}
+.mode{font:inherit;font-weight:800;font-size:17px;min-height:52px;border:0;border-radius:14px;background:transparent;color:var(--mute);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.mode svg{width:22px;height:22px;flex:none}
+.mode[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgb(0 0 0/.12)}
+.hint{display:block;font-size:13px;color:var(--mute)}
+.ev.pl .d b{font-size:17px;white-space:normal;line-height:1.25}
+.pill.type{background:light-dark(#fff3e0,#3b2a14);color:light-dark(#8a4b00,#ffcf8a);border:1px solid light-dark(#f6d4a4,#5c4320)}
 .towns,.ages{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .chip{font:inherit;font-size:15px;min-height:44px;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .chip[aria-pressed=true]{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,var(--card));font-weight:700}
@@ -99,7 +106,7 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .foot .note{margin:0;font-size:clamp(18px,2.4vw,22px);font-weight:700}
 .foot .small{margin:6px 0 0;font-size:15px;opacity:.9}
 @media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.mapbox{position:static}.mapbox svg{max-height:420px;margin:auto}}
-@media(max-width:600px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
+@media(max-width:600px){.tabs{grid-template-columns:repeat(var(--nm,3),minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.rt{transition:none}.cloud .bob,.cloud .twk{animation:none}}
 </style>
 </head>
@@ -130,9 +137,13 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 <p class="mapnote">點選路線或站名切換區域與鄉鎮，點左上角的雲朵看線上活動；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
 </section>
 <section>
+<div class="modes" role="tablist" aria-label="切換內容" id="modes">
+<button class="mode" role="tab" data-m="ev" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>近期活動</button>
+<button class="mode" role="tab" data-m="pl" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="currentColor"/></svg>景點好去處</button>
+</div>
 <div class="tabs" role="tablist" id="tabs"></div>
 <p class="lbl" id="townLbl">鄉鎮</p><div class="towns" id="towns"></div>
-<p class="lbl">孩子年齡</p><div class="ages" id="ages"></div>
+<p class="lbl" id="ageLbl">孩子年齡</p><div class="ages" id="ages"></div>
 <p class="lbl" id="svcLbl">服務項目</p><div class="ages" id="svcs"></div>
 <p class="sum" id="sum" aria-live="polite"></p>
 <div class="list" id="list"></div>
@@ -159,7 +170,9 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 /* ===== 設定:把 Google 試算表「發布到網路」的 CSV 網址貼在下面引號中 ===== */
 const SHEET_CSV_URL='https://docs.google.com/spreadsheets/d/16BuXmZVFoRRqOdm0-q0Jo-yUXdLoMcRJhfPekoLqcoM/gviz/tq?tqx=out:csv&sheet=%E6%B4%BB%E5%8B%95';
 
-let EVENTS=[],LOAD='loading';
+let EVENTS=[],LOAD='loading',PLACES=[],PLOAD='loading';
+const PLACE_CSV_URL=SHEET_CSV_URL.replace(/sheet=[^&]*/,'sheet=%E6%99%AF%E9%BB%9E');
+const PKEYS={'區域':'region','鄉鎮':'town','名稱':'title','類型':'type','開放時間':'hours','費用':'fee','地址':'addr','Google地圖':'map','官方網站':'web','備註':'note'};
 const RN={'市區':'city','海線':'coast','縱谷線':'valley','縱谷':'valley','南迴線':'south','南迴':'south','線上':'online'};
 const KEYS={'區域':'region','鄉鎮':'town','活動名稱':'title','開始日期':'start','結束日期':'end','時間':'time','地點':'place','最小年齡':'amin','最大年齡':'amax','費用':'fee','報名方式':'signup','聯絡窗口':'contact','報名連結':'link','服務項目':'svc','官網連結':'web'};
 const fw=v=>String(v==null?'':v).replace(/,/g,'，').replace(/;/g,'；').replace(/\(/g,'（').replace(/\)/g,'）').replace(/\?/g,'？').replace(/!/g,'！').replace(/(\D|^):(?!\d)/g,'$1：').replace(/(\D):/g,'$1：');
@@ -188,6 +201,13 @@ const a0=parseInt(o.amin),a1=parseInt(o.amax);o.age=[isNaN(a0)?0:a0,isNaN(a1)?99
 ['title','town','place','fee','signup','contact','svc','time'].forEach(k=>{if(o[k])o[k]=fw(o[k])});o.svc=o.svc||'';o.time=o.time||'';o.place=o.place||'';o.fee=o.fee||'請洽主辦單位';o.signup=o.signup||'';o.contact=o.contact||'';
 o.link=cleanLink(o.link);o.web=cleanLink(o.web);if(o.link&&!isSignup(o.link)){if(!o.web)o.web=o.link;o.link=''}out.push(o)});return out}
 
+function toPlaces(rows){const h=(rows.shift()||[]).map(x=>PKEYS[x.trim()]);const out=[];
+rows.forEach(r=>{const o={};h.forEach((k,i)=>{if(k)o[k]=(r[i]||'').trim()});if(!o.title)return;
+o.town=normTown(o.town);let rg=RN[o.region];if(!rg)for(const k in R)if(R[k].towns.includes(o.town))rg=k;if(!rg||rg==='online')return;o.region=rg;
+['title','town','type','hours','fee','addr','note'].forEach(k=>{o[k]=o[k]?fw(o[k]):''});
+o.web=/^https?:\/\//i.test(o.web||'')?o.web:'';
+o.map=/^https?:\/\//i.test(o.map||'')?o.map:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((o.title.split('（')[0])+' '+(o.addr||'臺東'+o.town));
+out.push(o)});return out}
 const R={
 city:{name:'市區',sub:'台東市',c:'--city',towns:['台東市']},
 coast:{name:'海線',sub:'東河・成功・長濱',c:'--coast',towns:['東河','成功','長濱']},
@@ -202,8 +222,9 @@ const pd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const t0=new Date();const today=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate());
 const md=d=>`${d.getMonth()+1}/${d.getDate()}`;
 
-let st={region:'city',town:null,age:0,svc:null,past:false};
-try{const h=location.hash.slice(1);if(R[h])st.region=h}catch(e){}
+let st={mode:'ev',region:'city',town:null,age:0,svc:null,past:false};
+function readHash(){const h=location.hash.slice(1);const pl=h.startsWith('pl-');const k=pl?h.slice(3):h;return{mode:pl?'pl':'ev',region:R[k]&&!(pl&&k==='online')?k:(pl?'city':null)}}
+try{const x=readHash();st.mode=x.mode;if(x.region)st.region=x.region}catch(e){}
 
 /* ---- 路線圖 ---- */
 const hub=[190,300];
@@ -224,7 +245,7 @@ const all=L.pts.concat((L.spur||[]).map(s=>s[1]));
 all.forEach(p=>{g+=`<g data-town="${p[2]}"><circle cx="${p[0]}" cy="${p[1]}" r="18" fill="transparent" stroke="none"/><circle class="st${st.town===p[2]?' sel':''}" cx="${p[0]}" cy="${p[1]}" r="8" stroke="${c}"/>${lab(p[0],p[1],p[2],p[3])}</g>`});
 h+=`<g class="rt${st.region===k?'':' off'}" data-r="${k}">${g}</g>`}
 h+=`<g class="rt hub${st.region==='city'?'':' off'}" data-r="city"><g data-town="台東市"><circle cx="${hub[0]}" cy="${hub[1]}" r="20" fill="var(--city)"/><circle cx="${hub[0]}" cy="${hub[1]}" r="9" fill="var(--card)"/><text x="${hub[0]+28}" y="${hub[1]+6}" style="font-size:17px">台東市區</text></g></g>`;
-const oc='var(--online)',on=st.region==='online';
+const oc='var(--online)',on=st.region==='online'&&st.mode==='ev';
 h+=`<g class="rt cloud${on?'':' off'}" data-r="online"><rect x="18" y="14" width="110" height="92" fill="transparent"/><g class="bob">
 <g fill="${oc}" stroke="${oc}" stroke-width="3"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><g fill="color-mix(in srgb,${oc} 16%,var(--card))"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g>
 <rect x="36" y="52" width="72" height="18" rx="9" fill="color-mix(in srgb,${oc} 16%,var(--card))"/><path d="M38 70H106" stroke="${oc}" stroke-width="3" stroke-linecap="round"/>
@@ -239,6 +260,7 @@ h+=`<text x="330" y="300" text-anchor="end" style="font-size:13px;fill:var(--mut
 map.innerHTML=h}
 map.addEventListener('click',e=>{const g=e.target.closest('[data-r]');if(!g)return;const t=e.target.closest('[data-town]');
 const r=g.dataset.r;const town=t?t.dataset.town:null;
+if(r==='online'&&st.mode==='pl'){st.mode='ev'}
 if(r!==st.region){st.region=r;st.town=(r==='city'||r==='online')?null:town}else{st.town=(town&&st.town!==town&&r!=='city')?town:null}
 render()});
 
@@ -246,17 +268,24 @@ render()});
 const tabs=document.getElementById('tabs'),towns=document.getElementById('towns'),ages=document.getElementById('ages'),svcs=document.getElementById('svcs');
 const upcoming=e=>pd(e.end||e.start)>=today;
 function drawControls(){
-tabs.innerHTML=Object.keys(R).map(k=>{const n=EVENTS.filter(e=>e.region===k&&upcoming(e)).length;
-return `<button class="tab" role="tab" id="tab-${k}" data-r="${k}" style="--c:var(${R[k].c})" aria-selected="${st.region===k}">${R[k].name}<small>${n} 場活動</small></button>`}).join('');
+const pl=st.mode==='pl';
+document.querySelectorAll('.mode').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===st.mode));
+const keys=Object.keys(R).filter(k=>!(pl&&k==='online'));
+tabs.style.setProperty('--n',keys.length);tabs.style.setProperty('--nm',keys.length===4?2:3);
+tabs.innerHTML=keys.map(k=>{const n=pl?PLACES.filter(e=>e.region===k).length:EVENTS.filter(e=>e.region===k&&upcoming(e)).length;
+return `<button class="tab" role="tab" id="tab-${k}" data-r="${k}" style="--c:var(${R[k].c})" aria-selected="${st.region===k}">${R[k].name}<small>${n} ${pl?'個去處':'場活動'}</small></button>`}).join('');
+document.getElementById('ageLbl').style.display=ages.style.display=pl?'none':'';
 const c=`var(${R[st.region].c})`;
 const tw=R[st.region].towns;
 document.getElementById('townLbl').style.display=towns.style.display=tw.length?'':'none';
 towns.innerHTML=tw.length>1?[`<button class="chip" style="--c:${c}" data-t="" aria-pressed="${!st.town}">全部鄉鎮</button>`].concat(tw.map(t=>`<button class="chip" style="--c:${c}" data-t="${t}" aria-pressed="${st.town===t}">${t}</button>`)).join(''):`<span class="chip" style="--c:${c};cursor:default" aria-pressed="true">台東市</span>`;
 ages.innerHTML=AGES.map((a,i)=>`<button class="chip" style="--c:${c}" data-a="${i}" aria-pressed="${st.age===i}">${a[0]}</button>`).join('');
-const list=[...new Set(EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&e.svc&&(upcoming(e)||st.past)).map(e=>e.svc))];
+const list=pl?[...new Set(PLACES.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&e.type).map(e=>e.type))]:[...new Set(EVENTS.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&e.svc&&(upcoming(e)||st.past)).map(e=>e.svc))];
+document.getElementById('svcLbl').textContent=pl?'類型':'服務項目';
 if(st.svc&&!list.includes(st.svc))st.svc=null;
 document.getElementById('svcLbl').style.display=svcs.style.display=list.length?'':'none';
 svcs.innerHTML=[`<button class="chip" style="--c:${c}" data-s="" aria-pressed="${!st.svc}">全部</button>`].concat(list.map(v=>`<button class="chip" style="--c:${c}" data-s="${esc(v)}" aria-pressed="${st.svc===v}">${esc(v)}</button>`)).join('')}
+document.getElementById('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m===st.mode)return;st.mode=b.dataset.m;st.svc=null;st.town=null;if(st.mode==='pl'&&st.region==='online')st.region='city';render()});
 tabs.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;st.region=b.dataset.r;st.town=null;render()});
 towns.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=b.dataset.t||null;st.town=(t&&st.town===t)?null:t;render()});
 ages.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;st.age=+b.dataset.a;render()});
@@ -281,8 +310,25 @@ return `<article class="ev${past?' past':''}" style="--c:var(${R[e.region].c})">
 <h3>${esc(e.title)}</h3>
 <ul class="info">${row('項目',esc(e.svc))}${row('時間',esc(e.time))}${row('地點',e.region==='online'?esc(e.place||'線上'):esc(e.town)+(e.place?'・'+esc(e.place):''))}${row('報名',esc(e.signup))}${row('聯絡',esc(e.contact))}</ul>
 ${(e.link||e.web)?`<div class="btns">${e.link?`<a class="go" href="${esc(e.link)}" target="_blank" rel="noopener">前往報名</a>`:''}${e.web?`<a class="go web" href="${esc(e.web)}" target="_blank" rel="noopener">活動網站</a>`:''}</div>`:''}</div></article>`}
+function placeCard(e){
+const free=/^免費/.test(e.fee)?'免費':/^免門票/.test(e.fee)?'免門票':'需付費';
+const row=(k,v)=>v?`<li><span class="k">${k}</span><span class="v">${v}</span></li>`:'';
+return `<article class="ev pl" style="--c:var(${R[e.region].c})">
+<div class="d"><b>${esc(e.town)}</b><span>${esc(R[e.region].name)}</span></div>
+<div><div class="tags">${e.type?`<span class="pill type">${esc(e.type)}</span>`:''}<span class="pill fee">${free}</span></div>
+<h3>${esc(e.title)}</h3>
+<ul class="info">${row('開放',(e.hours?esc(e.hours):'請見官方公告')+'<span class="hint">實際開放時間以官方公告為準</span>')}${row('費用',esc(e.fee||'請洽官方'))}${row('地址',esc(e.addr))}${row('備註',esc(e.note))}</ul>
+<div class="btns"><a class="go" href="${esc(e.map)}" target="_blank" rel="noopener">Google 地圖怎麼去</a>${e.web?`<a class="go web" href="${esc(e.web)}" target="_blank" rel="noopener">官方網站</a>`:''}</div></div></article>`}
+function renderPlaces(){
+const pool=PLACES.filter(e=>e.region===st.region&&(!st.town||e.town===st.town)&&(!st.svc||e.type===st.svc));
+const where=st.town||R[st.region].name;
+const msg={loading:'景點載入中…',err:'景點資料暫時無法載入，請稍後重新整理'}[PLOAD];
+document.getElementById('sum').textContent=msg||(pool.length?`${where}有 ${pool.length} 個可以帶孩子去的地方`:`${where}目前還沒有整理景點`);
+document.getElementById('list').innerHTML=PLOAD!=='ok'?'':pool.map(placeCard).join('')||`<div class="empty">這個區域還沒有整理景點，可以看看其他鄉鎮。</div>`;
+document.getElementById('pastBtn').style.display='none'}
 function render(){
-try{history.replaceState(null,'','#'+st.region)}catch(e){}
+try{history.replaceState(null,'','#'+(st.mode==='pl'?'pl-':'')+st.region)}catch(e){}
+if(st.mode==='pl'){document.documentElement.style.setProperty('--sel',`var(${R[st.region].c})`);drawMap();drawControls();renderPlaces();return}
 document.documentElement.style.setProperty('--sel',`var(${R[st.region].c})`);
 drawMap();drawControls();
 const a=AGES[st.age][1];
@@ -302,8 +348,11 @@ function load(){
 if(!/^https?:/.test(SHEET_CSV_URL)){LOAD='nourl';render();return}
 fetch(SHEET_CSV_URL+(SHEET_CSV_URL.includes('?')?'&':'?')+'_='+Date.now()).then(r=>{if(!r.ok)throw 0;return r.text()})
 .then(t=>{EVENTS=toEvents(parseCSV(t.replace(/^\ufeff/,'')));LOAD='ok';render()})
-.catch(()=>{LOAD='err';render()})}
-window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(R[h]&&h!==st.region){st.region=h;st.town=null;render()}});
+.catch(()=>{LOAD='err';render()});
+fetch(PLACE_CSV_URL+'&_='+Date.now()).then(r=>{if(!r.ok)throw 0;return r.text()})
+.then(t=>{PLACES=toPlaces(parseCSV(t.replace(/^\ufeff/,'')));PLOAD='ok';render()})
+.catch(()=>{PLOAD='err';render()})}
+window.addEventListener('hashchange',()=>{const x=readHash();if(x.region&&(x.region!==st.region||x.mode!==st.mode)){st.mode=x.mode;st.region=x.region;st.town=null;st.svc=null;render()}});
 render();load();
 }
 </script>
