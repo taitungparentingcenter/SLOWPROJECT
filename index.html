@@ -30,21 +30,15 @@ h1{font-size:clamp(32px,5vw,48px);line-height:1.1;margin:0 0 8px;font-weight:900
 main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,48px);align-items:start}
 .side{position:sticky;top:16px;display:grid;gap:10px}
 .mapbox{background:radial-gradient(circle at 105% 60%,color-mix(in srgb,var(--coast) 16%,var(--card)) 0,var(--card) 48%);border:1px solid var(--line);border-radius:20px;padding:12px}
-.mapbox svg{width:100%;height:auto;display:block;max-height:62vh}
+.mapbox svg{width:100%;height:auto;display:block;max-height:76vh}
 .boxttl{margin:2px 8px 0;font-weight:800;font-size:15px;color:var(--mute)}
-.orsep{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:14px}
-.orsep::before,.orsep::after{content:"";flex:1;border-top:1px dashed var(--line)}
-.ocard{font:inherit;color:var(--ink);display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;padding:12px 16px;border-radius:20px;border:2px dashed var(--online);background:color-mix(in srgb,var(--online) 8%,var(--card));transition:background .2s}
-.ocard:hover{background:color-mix(in srgb,var(--online) 15%,var(--card))}
-.ocard[aria-pressed=true]{border-style:solid;background:color-mix(in srgb,var(--online) 20%,var(--card))}
-.ocard:focus-visible{outline:3px solid var(--online);outline-offset:2px}
-.oc-ic{width:86px;height:auto;flex:none}
-.oc-t{flex:1;display:grid;line-height:1.35}.oc-t b{font-size:18px;color:var(--online)}.oc-t small{font-size:14px;color:var(--mute)}
-.ocard em{font-style:normal;font-size:26px;color:var(--online);font-weight:700}
-.ocard .bob{animation:bob 3.2s ease-in-out infinite}.ocard .twk{animation:twk 1.8s ease-in-out infinite}
 .mapnote{font-size:13px;color:var(--mute);margin:4px 8px 4px}
 .rt{cursor:pointer;transition:opacity .25s}
 .rt.off{opacity:.28}
+.rt.cloud.off{opacity:.8}
+.ozone{fill:color-mix(in srgb,var(--online) 8%,var(--card));stroke:var(--online);stroke-width:2;stroke-dasharray:6 5}
+.cloud.sel .ozone{fill:color-mix(in srgb,var(--online) 20%,var(--card));stroke-dasharray:none}
+.cloud:hover .ozone{fill:color-mix(in srgb,var(--online) 15%,var(--card))}
 .rt:not(.cloud) path{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
 .rt .st{fill:var(--card);stroke-width:4}
 .rt .st.sel{stroke-width:7}
@@ -117,9 +111,9 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 .foot .wave{position:absolute;left:0;top:-39px;width:100%;height:40px}
 .foot .note{margin:0;font-size:clamp(18px,2.4vw,22px);font-weight:700}
 .foot .small{margin:6px 0 0;font-size:15px;opacity:.9}
-@media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.side{position:static}.mapbox svg{max-height:420px;margin:auto}}
+@media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.side{position:static}.mapbox svg{max-height:520px;margin:auto}}
 @media(max-width:600px){.tabs{grid-template-columns:repeat(var(--nm,3),minmax(0,1fr))}.ev{grid-template-columns:66px minmax(0,1fr);gap:10px;padding:12px}.d b{font-size:21px}}
-@media(prefers-reduced-motion:reduce){.rt{transition:none}.cloud .bob,.cloud .twk,.ocard .bob,.ocard .twk{animation:none}}
+@media(prefers-reduced-motion:reduce){.rt{transition:none}.cloud .bob,.cloud .twk{animation:none}}
 </style>
 </head>
 <body>
@@ -147,11 +141,9 @@ main{max-width:1240px;margin:auto;padding:24px max(5vw,16px) 40px;display:grid;g
 <div class="side">
 <section class="mapbox" aria-label="台東分區路線圖">
 <p class="boxttl">依地區找</p>
-<svg id="map" viewBox="0 0 360 470" role="img" aria-label="台東四區路線圖"></svg>
-<p class="mapnote">點選路線或站名切換區域與鄉鎮；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
+<svg id="map" viewBox="0 0 360 566" role="img" aria-label="台東四區路線圖與線上講座"></svg>
+<p class="mapnote">點選路線或站名切換區域與鄉鎮，想在家參加請點最下方的「線上講座」；再點一次同一站（或同一個鄉鎮按鈕）即可取消鄉鎮篩選。</p>
 </section>
-<div class="orsep" aria-hidden="true"><span>或是</span></div>
-<button type="button" class="ocard" id="onlineBtn" aria-pressed="false"><svg class="oc-ic" viewBox="20 16 106 62" aria-hidden="true"><g class="bob"><g fill="var(--online)" stroke="var(--online)" stroke-width="3"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><g fill="color-mix(in srgb,var(--online) 16%,var(--card))"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><rect x="36" y="52" width="72" height="18" rx="9" fill="color-mix(in srgb,var(--online) 16%,var(--card))"/><path d="M38 70H106" stroke="var(--online)" stroke-width="3" stroke-linecap="round"/><rect x="59" y="40" width="26" height="17" rx="3" fill="var(--online)"/><rect x="62" y="43" width="20" height="11" rx="2" fill="var(--card)"/><circle cx="68" cy="47.5" r="1.6" fill="var(--online)"/><circle cx="76" cy="47.5" r="1.6" fill="var(--online)"/><path d="M69 50.5q3 2.6 6 0" fill="none" stroke="var(--online)" stroke-width="1.4" stroke-linecap="round"/><circle cx="64.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/><circle cx="79.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/><path d="M55 57H89L86 61H58Z" fill="var(--online)"/><g fill="none" stroke="var(--online)" stroke-width="2.4" stroke-linecap="round"><path d="M96 30a8 8 0 0 1 8 8"/><path d="M96 23a15 15 0 0 1 15 15"/></g><path class="twk" d="M30 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="var(--sun)"/><path class="twk" style="animation-delay:.9s" d="M116 66l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="var(--sun)"/></g></svg><span class="oc-t"><b>線上講座</b><small>不用出門，在家就能參加</small></span><em aria-hidden="true">›</em></button>
 </div>
 <section>
 <div class="modes" role="tablist" aria-label="切換內容" id="modes">
@@ -262,10 +254,10 @@ const all=L.pts.concat((L.spur||[]).map(s=>s[1]));
 all.forEach(p=>{g+=`<g data-town="${p[2]}"><circle cx="${p[0]}" cy="${p[1]}" r="18" fill="transparent" stroke="none"/><circle class="st${st.town===p[2]?' sel':''}" cx="${p[0]}" cy="${p[1]}" r="8" stroke="${c}"/>${lab(p[0],p[1],p[2],p[3])}</g>`});
 h+=`<g class="rt${st.region===k?'':' off'}" data-r="${k}">${g}</g>`}
 h+=`<g class="rt hub${st.region==='city'?'':' off'}" data-r="city"><g data-town="台東市"><circle cx="${hub[0]}" cy="${hub[1]}" r="20" fill="var(--city)"/><circle cx="${hub[0]}" cy="${hub[1]}" r="9" fill="var(--card)"/><text x="${hub[0]+28}" y="${hub[1]+6}" style="font-size:17px">台東市區</text></g></g>`;
+const on=st.region==='online'&&st.mode==='ev';
+h+=`<line x1="16" y1="486" x2="344" y2="486" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 6"/><text x="180" y="491" text-anchor="middle" style="font-size:12px;fill:var(--mute);paint-order:stroke;stroke:var(--card);stroke-width:8px">不限地區・在家就能參加</text><g class="rt cloud${on?' sel':' off'}" data-r="online" role="button" aria-label="線上講座"><rect class="ozone" x="14" y="502" width="332" height="60" rx="16"/><g transform="translate(14,481) scale(.7)"><g class="bob"><g fill="var(--online)" stroke="var(--online)" stroke-width="3"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><g fill="color-mix(in srgb,var(--online) 16%,var(--card))"><circle cx="50" cy="56" r="15"/><circle cx="72" cy="44" r="21"/><circle cx="94" cy="56" r="15"/></g><rect x="36" y="52" width="72" height="18" rx="9" fill="color-mix(in srgb,var(--online) 16%,var(--card))"/><path d="M38 70H106" stroke="var(--online)" stroke-width="3" stroke-linecap="round"/><rect x="59" y="40" width="26" height="17" rx="3" fill="var(--online)"/><rect x="62" y="43" width="20" height="11" rx="2" fill="var(--card)"/><circle cx="68" cy="47.5" r="1.6" fill="var(--online)"/><circle cx="76" cy="47.5" r="1.6" fill="var(--online)"/><path d="M69 50.5q3 2.6 6 0" fill="none" stroke="var(--online)" stroke-width="1.4" stroke-linecap="round"/><circle cx="64.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/><circle cx="79.5" cy="50.5" r="1.4" fill="var(--city)" opacity=".5"/><path d="M55 57H89L86 61H58Z" fill="var(--online)"/><g fill="none" stroke="var(--online)" stroke-width="2.4" stroke-linecap="round"><path d="M96 30a8 8 0 0 1 8 8"/><path d="M96 23a15 15 0 0 1 15 15"/></g><path class="twk" d="M30 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="var(--sun)"/><path class="twk" style="animation-delay:.9s" d="M116 66l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="var(--sun)"/></g></g><text x="104" y="528" style="font-size:18px;fill:var(--online);stroke-width:0">線上講座</text><text x="104" y="549" style="font-size:13px;font-weight:500;fill:var(--mute);stroke-width:0">不用出門，網路報名、線上參加</text><text x="330" y="540" text-anchor="end" style="font-size:26px;fill:var(--online);stroke-width:0">›</text></g>`;
 h+=`<text x="330" y="300" text-anchor="end" style="font-size:13px;fill:var(--mute);font-weight:500">太平洋</text>`;
-map.innerHTML=h;onlineBtn.setAttribute('aria-pressed',st.region==='online'&&st.mode==='ev')}
-const onlineBtn=document.getElementById('onlineBtn');
-onlineBtn.addEventListener('click',()=>{st.mode='ev';st.region='online';st.town=null;render()});
+map.innerHTML=h}
 map.addEventListener('click',e=>{const g=e.target.closest('[data-r]');if(!g)return;const t=e.target.closest('[data-town]');
 const r=g.dataset.r;const town=t?t.dataset.town:null;
 if(r==='online'&&st.mode==='pl'){st.mode='ev'}
